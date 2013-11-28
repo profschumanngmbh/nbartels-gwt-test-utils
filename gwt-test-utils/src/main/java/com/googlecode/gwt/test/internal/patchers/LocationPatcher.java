@@ -15,7 +15,7 @@ import com.googlecode.gwt.test.internal.GwtConfig;
 import com.googlecode.gwt.test.patchers.PatchClass;
 import com.googlecode.gwt.test.patchers.PatchMethod;
 
-@PatchClass(Location.class)
+@PatchClass(target="com.google.gwt.user.client.Window$Location")
 class LocationPatcher {
 
    /**
