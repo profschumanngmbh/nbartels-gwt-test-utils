@@ -169,7 +169,7 @@ public class GwtFactory {
     }
 
     private UnitCache getPersistantCache() {
-        return UnitCacheSingleton.get(GwtTreeLogger.get(), getTargetDir(), createOptions());
+        return UnitCacheSingleton.get(GwtTreeLogger.get(), getTargetDir());
     }
 
     private File getTargetDir() {
@@ -178,13 +178,5 @@ public class GwtFactory {
         } catch (URISyntaxException e) {
             throw new GwtTestException("Error while trying to get test target directory", e);
         }
-    }
-
-    // Copied from JUnitShell
-    private DevMode.HostedModeOptions createOptions() {
-        DevMode.HostedModeOptions options = GwtReflectionUtils.instantiateClass("com.google.gwt.dev.DevMode$HostedModeOptionsImpl");
-        options.setSuperDevMode(false);
-        options.setIncrementalCompileEnabled(false);
-        return options;
     }
 }
