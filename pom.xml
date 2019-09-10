@@ -57,6 +57,7 @@
     <modules>
         <module>gwt-test-utils</module>
         <module>gwt-test-utils-csv</module>
+        <module>gwt-test-utils-gxt2</module>
     </modules>
     <properties>
         <encoding>UTF-8</encoding>
@@ -93,6 +94,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>gwt-test-utils-csv</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>gwt-test-utils-gxt2</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -139,6 +145,17 @@
                 <groupId>com.jhickman</groupId>
                 <artifactId>gwt-customuibinder</artifactId>
                 <version>1.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.extjs</groupId>
+                <artifactId>gxt</artifactId>
+                <version>2.3.1-gwt28-bdd-18-SNAPSHOT</version>
+                <!-- betadriven gxt with gwt 2.8.2 support -->
+            </dependency>
+            <dependency>
+                <groupId>com.jhickman</groupId>
+                <artifactId>gxt-uibinder</artifactId>
+                <version>1.0.1</version>
             </dependency>
 
             <dependency>
