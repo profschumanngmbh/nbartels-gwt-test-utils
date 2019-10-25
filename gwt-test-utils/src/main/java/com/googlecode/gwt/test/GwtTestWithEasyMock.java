@@ -7,7 +7,6 @@ import com.googlecode.gwt.test.exceptions.GwtTestPatchException;
 import com.googlecode.gwt.test.exceptions.ReflectionException;
 import com.googlecode.gwt.test.internal.BrowserSimulatorImpl;
 import com.googlecode.gwt.test.internal.GwtFactory;
-import com.googlecode.gwt.test.internal.handlers.GwtTestGWTBridge;
 import com.googlecode.gwt.test.internal.utils.ArrayUtils;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils.MethodCallback;
@@ -18,7 +17,8 @@ import org.junit.Before;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -81,25 +81,15 @@ public abstract class GwtTestWithEasyMock extends GwtTestWithMocks {
 
     }
 
-    private List<Class<Object>> mockedClasses = new ArrayList<>();
-    private Set<Field> mockFields;
-
-    public GwtTestWithEasyMock() {
-        super(MockManager.get());
-        mockFields = getMockFields();
-        for (Field f : mockFields) {
-            mockedClasses.add((Class<Object>) f.getType());
-        }
-    }
-
     @Before
     public void beforeGwtTestWithEasyMock() {
-        mockedClasses.forEach(clazz ->
-                getMockManager().registerMock(clazz, createMock(clazz))
-        );
+        for (Class<?> clazz : mockedClasses) {
+            Object mock = createMock(clazz);
+            addMockedObject(clazz, mock);
+        }
         try {
             for (Field f : mockFields) {
-                Object mock = getMockManager().getMock(f.getType());
+                Object mock = mockObjects.get(f.getType());
                 GwtReflectionUtils.makeAccessible(f);
                 f.set(this, mock);
             }
@@ -122,14 +112,18 @@ public abstract class GwtTestWithEasyMock extends GwtTestWithMocks {
      */
     protected <T> T createMockAndKeepMethods(Class<T> clazz, final boolean keepSetters,
                                              final Method... list) {
-        final List<Method> l = new ArrayList<>();
-        GwtReflectionUtils.doWithMethods(clazz, method -> {
-            if (!ArrayUtils.contains(list, method)) {
-                if (!keepSetters || !method.getName().startsWith("set")
-                        || method.getReturnType() != void.class) {
-                    l.add(method);
+        final List<Method> l = new ArrayList<Method>();
+        GwtReflectionUtils.doWithMethods(clazz, new MethodCallback() {
+
+            public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
+                if (!ArrayUtils.contains(list, method)) {
+                    if (!keepSetters || !method.getName().startsWith("set")
+                            || method.getReturnType() != void.class) {
+                        l.add(method);
+                    }
                 }
             }
+
         });
         T o = EasyMock.createMockBuilder(clazz).addMockedMethods(l.toArray(new Method[]{})).createMock();
         addMockedObject(clazz, o);
@@ -186,14 +180,18 @@ public abstract class GwtTestWithEasyMock extends GwtTestWithMocks {
      * Set all declared mocks to replay state.
      */
     protected void replay() {
-        getMockManager().getAllMocksByType().values().forEach(EasyMock::replay);
+        for (Object o : mockObjects.values()) {
+            EasyMock.replay(o);
+        }
     }
 
     /**
      * Reset all declared mocks.
      */
     protected void reset() {
-        getMockManager().getAllMocksByType().values().forEach(EasyMock::reset);
+        for (Object o : mockObjects.values()) {
+            EasyMock.reset(o);
+        }
     }
 
     /**
@@ -201,16 +199,18 @@ public abstract class GwtTestWithEasyMock extends GwtTestWithMocks {
      */
     protected void verify() {
         // trigger commands
-        getBrowserSimulator().fireLoopEnd();
+        BrowserSimulatorImpl.get().fireLoopEnd();
 
-        getMockManager().getAllMocksByType().values().forEach(EasyMock::verify);
+        for (Object o : mockObjects.values()) {
+            EasyMock.verify(o);
+        }
     }
 
-    private <T> T createMock(Class<T> clazz) {
+    private Object createMock(Class<?> clazz) {
 
         if (GwtFactory.get().getOverlayRewriter().isJsoIntf(clazz.getName())) {
             try {
-                return (T) EasyMock.createMock(Class.forName(JsValueGlue.JSO_IMPL_CLASS));
+                return EasyMock.createMock(Class.forName(JsValueGlue.JSO_IMPL_CLASS));
             } catch (ClassNotFoundException e) {
                 // should never happen
                 throw new GwtTestPatchException("Error while creating a mock with EasyMock for "
@@ -219,10 +219,6 @@ public abstract class GwtTestWithEasyMock extends GwtTestWithMocks {
         } else {
             return EasyMock.createMock(clazz);
         }
-    }
-
-    private Set<Field> getMockFields() {
-        return new HashSet<>(GwtReflectionUtils.getAnnotatedField(this.getClass(), Mock.class).keySet());
     }
 
 }

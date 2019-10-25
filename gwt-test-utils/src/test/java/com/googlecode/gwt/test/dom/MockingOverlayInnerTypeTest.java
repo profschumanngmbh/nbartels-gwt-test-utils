@@ -20,8 +20,6 @@ public class MockingOverlayInnerTypeTest extends GwtTestTest {
         assertThat(event).isNotNull();
     }
 
-    // FIXME : enable this test
-    @Ignore
     @Test
     public void withMockito() {
         // Given

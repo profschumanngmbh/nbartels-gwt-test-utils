@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @GwtModule("com.googlecode.gwt.test.GwtTestUtils")
 public class CompositeWithMockitoTest extends GwtTestWithMockito {
 
-    @com.googlecode.gwt.test.Mock
+    @Mock
     private Element element;
     @Mock
     private PushButton injectedButton;

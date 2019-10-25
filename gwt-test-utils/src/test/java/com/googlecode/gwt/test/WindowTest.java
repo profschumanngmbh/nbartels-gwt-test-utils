@@ -4,17 +4,16 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.Window;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @GwtModule("com.googlecode.gwt.test.GwtTestUtils")
 public class WindowTest extends GwtTestWithMockito {
 
-    @Mock
+    @org.mockito.Mock
     private WindowOperationsHandler mockedHandler;
 
     @Before

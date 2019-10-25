@@ -3,12 +3,10 @@ package com.googlecode.gwt.test;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.googlecode.gwt.test.internal.handlers.GwtTestGWTBridge;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
+import org.junit.After;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
@@ -23,16 +21,15 @@ import java.util.Set;
  * </p>
  *
  * @author Eric Therond
- * @author Gael Lazzari
  */
 public abstract class GwtTestWithMocks extends GwtTest {
 
     private class MockCreateHandler implements GwtCreateHandler {
 
-        private final MockManager mockManager;
+        private final Map<Class<?>, Object> mockObjects;
 
-        public MockCreateHandler(MockManager mockManager) {
-            this.mockManager = mockManager;
+        public MockCreateHandler(Map<Class<?>, Object> mockObjects) {
+            this.mockObjects = mockObjects;
         }
 
         public Object create(Class<?> classLiteral) throws Exception {
@@ -40,16 +37,26 @@ public abstract class GwtTestWithMocks extends GwtTest {
                 String asyncName = classLiteral.getName() + "Async";
                 classLiteral = GwtReflectionUtils.getClass(asyncName);
             }
-            return mockManager.getMock(classLiteral);
+            return mockObjects.get(classLiteral);
         }
 
     }
 
-    private final MockManager mockManager;
+    protected List<Class<?>> mockedClasses = new ArrayList<Class<?>>();
+    protected Set<Field> mockFields;
+    protected Map<Class<?>, Object> mockObjects = new HashMap<Class<?>, Object>();
 
-    public GwtTestWithMocks(MockManager mockManager) {
-        this.mockManager = mockManager;
-        GwtTestGWTBridge.get().setMockCreateHandler(new MockCreateHandler(mockManager));
+    public GwtTestWithMocks() {
+        GwtTestGWTBridge.get().setMockCreateHandler(new MockCreateHandler(mockObjects));
+        mockFields = getMockFields();
+        for (Field f : mockFields) {
+            mockedClasses.add(f.getType());
+        }
+    }
+
+    @After
+    public void teardownGwtTestWithMocks() {
+        mockObjects.clear();
     }
 
     /**
@@ -58,14 +65,14 @@ public abstract class GwtTestWithMocks extends GwtTest {
      * @param createClass The class for which a mock object is being defined
      * @param mock        the mock instance
      */
-    public <T> T addMockedObject(Class<?> createClass, Object mock) {
-        return MockManager.get().registerMock((Class<T>)createClass, (T) mock);
+    protected Object addMockedObject(Class<?> createClass, Object mock) {
+        return mockObjects.put(createClass, mock);
     }
 
-    public MockManager getMockManager() {
-        return mockManager;
+    protected Set<Field> getMockFields() {
+        Set<Field> set = new HashSet<Field>();
+        set.addAll(GwtReflectionUtils.getAnnotatedField(this.getClass(), Mock.class).keySet());
+        return set;
     }
-
-
 
 }

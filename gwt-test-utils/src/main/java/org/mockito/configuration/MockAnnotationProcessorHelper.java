@@ -1,26 +1,17 @@
-package com.googlecode.gwt.test.mockito;
+package org.mockito.configuration;
 
 import com.google.gwt.dev.shell.JsValueGlue;
-import com.googlecode.gwt.test.Mock;
 import com.googlecode.gwt.test.exceptions.GwtTestPatchException;
 import com.googlecode.gwt.test.internal.GwtFactory;
-import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
- * Utils for Mockito Mocks.
+ * Helper for MockitoAnnotationProcessor subclasses
  *
  * @author Gael Lazzari
  */
-class GwtMockitoUtils {
-
-    static <T extends Annotation> Set<Field> getMockFields(Class<?> clazz, Class<T> mockAnnotation) {
-        return new HashSet<>(GwtReflectionUtils.getAnnotatedField(clazz, mockAnnotation).keySet());
-    }
+class MockAnnotationProcessorHelper {
 
     /**
      * Return the exact type to mock, regarding if it's an Overlay type or not.
@@ -49,4 +40,5 @@ class GwtMockitoUtils {
             return f.getType();
         }
     }
+
 }
