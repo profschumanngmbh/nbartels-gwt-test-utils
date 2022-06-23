@@ -6,11 +6,11 @@
     <parent>
         <groupId>com.googlecode.gwt-test-utils</groupId>
         <artifactId>gwt-test-utils-parent</artifactId>
-        <version>0.64-SNAPSHOT</version>
+        <version>0.65-nb</version>
     </parent>
     <dependencies>
         <dependency>
-            <groupId>com.google.gwt</groupId>
+            <groupId>${gwt.groupId}</groupId>
             <artifactId>gwt-dev</artifactId>
         </dependency>
         <dependency>
@@ -48,12 +48,12 @@
             <artifactId>jackson-core-asl</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.gwt</groupId>
+            <groupId>${gwt.groupId}</groupId>
             <artifactId>gwt-user</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.gwt</groupId>
+            <groupId>${gwt.groupId}</groupId>
             <artifactId>gwt-servlet</artifactId>
             <scope>provided</scope>
         </dependency>
